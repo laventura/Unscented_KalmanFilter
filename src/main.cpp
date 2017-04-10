@@ -84,7 +84,7 @@ int main(int argc, char* argv[]) {
     iss >> sensor_type;
 
     if (sensor_type.compare("L") == 0) {
-      // laser measurement
+      // LASER measurement -------------------------------
 
       // read measurements at this timestamp
       meas_package.sensor_type_ = MeasurementPackage::LASER;
@@ -98,7 +98,7 @@ int main(int argc, char* argv[]) {
       meas_package.timestamp_ = timestamp;
       measurement_pack_list.push_back(meas_package);
     } else if (sensor_type.compare("R") == 0) {
-      // radar measurement
+      // RADAR measurement --------------------------------
 
       // read measurements at this timestamp
       meas_package.sensor_type_ = MeasurementPackage::RADAR;
@@ -127,8 +127,9 @@ int main(int argc, char* argv[]) {
       gt_package.gt_values_ = VectorXd(4);
       gt_package.gt_values_ << x_gt, y_gt, vx_gt, vy_gt;
       gt_pack_list.push_back(gt_package);
-  }
+  } // while-get-line
 
+  // ----------------Create UKF and Process Measurement ------------------------
   // Create a UKF instance
   UKF ukf;
 
@@ -202,8 +203,8 @@ int main(int argc, char* argv[]) {
     // convert ukf x vector to cartesian to compare to ground truth
     VectorXd ukf_x_cartesian_ = VectorXd(4);
 
-    float x_estimate_ = ukf.x_(0);
-    float y_estimate_ = ukf.x_(1);
+    float x_estimate_  = ukf.x_(0);
+    float y_estimate_  = ukf.x_(1);
     float vx_estimate_ = ukf.x_(2) * cos(ukf.x_(3));
     float vy_estimate_ = ukf.x_(2) * sin(ukf.x_(3));
     
@@ -212,9 +213,9 @@ int main(int argc, char* argv[]) {
     estimations.push_back(ukf_x_cartesian_);
     ground_truth.push_back(gt_pack_list[k].gt_values_);
 
-  }
+  } // for-each measurement
 
-  // compute the accuracy (RMSE)
+  // ------------- compute the accuracy (RMSE) ------------------------------
   Tools tools;
   cout << "Accuracy - RMSE:" << endl << tools.CalculateRMSE(estimations, ground_truth) << endl;
 
