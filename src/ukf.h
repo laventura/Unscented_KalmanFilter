@@ -34,6 +34,8 @@ public:
 
   ///* augmented sigma points matrix  -- AA
   MatrixXd Xsig_aug_;
+
+  ///* sigma points in measurement space - AA
   MatrixXd Zsig_;
 
   ///* time when the state is true, in us
@@ -78,16 +80,16 @@ public:
   ///* the current NIS for laser
   double NIS_laser_;
 
-  ///* AUGMENTED state vector: [pos1 pos2 vel_abs yaw_angle yaw_rate] in SI units and rad  // AA
-  VectorXd x_aug;
+  ///* AUGMENTED state vector: [pos1 pos2 vel_abs yaw_angle yaw_rate nu_a nu_yawdd] in SI units and rad  // AA
+  VectorXd x_aug_;
 
-  ///* AUGMENTED state covariance matrix    // AA
-  MatrixXd P_aug;
+  ///* AUGMENTED P covariance matrix    // AA
+  MatrixXd P_aug_;
 
   //set measurement dimension, radar can measure r, phi, and r_dot  // AA
   int n_z_radar_;   // 3
 
-  ///* Process noise    // AA
+  ///* Process noise matrices   // AA
   MatrixXd  Q_;
   MatrixXd  H_laser_;
   MatrixXd  R_laser_;

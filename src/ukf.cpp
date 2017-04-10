@@ -31,19 +31,19 @@ UKF::UKF() {
   std_yawdd_  = 0.6;  // orig 30; test with 1.5 - 3
 
   // Laser measurement noise standard deviation position1 in m
-  std_laspx_  = 0.15;
+  std_laspx_  = 0.15; // from EKF project
 
   // Laser measurement noise standard deviation position2 in m
-  std_laspy_  = 0.15;
+  std_laspy_  = 0.15; // from EKF project
 
   // Radar measurement noise standard deviation radius in m
-  std_radr_   = 0.3;
+  std_radr_   = 0.3;  // from EKF project
 
   // Radar measurement noise standard deviation angle in rad
-  std_radphi_ = 0.03;
+  std_radphi_ = 0.03; // from EKF project
 
   // Radar measurement noise standard deviation radius change in m/s
-  std_radrd_  = 0.3;  
+  std_radrd_  = 0.3;  // from EKF project
 
   /**
   TODO:
@@ -64,7 +64,7 @@ UKF::UKF() {
 
   // init state vector
   x_      = VectorXd(n_x_);       // size 5
-  x_aug   = VectorXd(n_aug_);     // size 7
+  x_aug_   = VectorXd(n_aug_);     // size 7
 
   // Noise covar matrix
   Q_      = MatrixXd(2, 2);       // 2x2
@@ -79,10 +79,10 @@ UKF::UKF() {
           0, 0, 0, 100, 0,
           0, 0, 0, 0, 1;
 
-  P_aug   = MatrixXd(n_aug_, n_aug_);  // 7x7
-  P_aug.fill(0.0);
-  P_aug.topLeftCorner(n_x_, n_x_) = P_;
-  P_aug.bottomRightCorner(2, 2)   = Q_;
+  P_aug_   = MatrixXd(n_aug_, n_aug_);  // 7x7
+  P_aug_.fill(0.0);
+  P_aug_.topLeftCorner(n_x_, n_x_) = P_;
+  P_aug_.bottomRightCorner(2, 2)   = Q_;
 
   // init weights_
   weights_    = VectorXd(2 * n_aug_ + 1);   // 15 sigma points
@@ -169,8 +169,8 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
       // init x_
       x_    <<      px, py, 0.0, 0.0, 0.0;
     }
-    // 1b - fill aug state vec x_aug
-    x_aug <<      x_.array(), 0.0, 0.0;
+    // 1b - fill aug state vec x_aug_
+    x_aug_ <<      x_.array(), 0.0, 0.0;
 
     // 2 - store timestamp
     previous_timestamp_ = meas_package.timestamp_;
@@ -222,26 +222,26 @@ void UKF::Prediction(double delta_t) {
   */
   // 1 - Generate Sigma Points
   // 1a - augmented mean state
-  x_aug.head(5) = x_;
-  x_aug(5)      = 0.0;
-  x_aug(6)      = 0.0;
+  x_aug_.head(5) = x_;
+  x_aug_(5)      = 0.0;
+  x_aug_(6)      = 0.0;
 
-  // 1b - P_aug - process 
-  P_aug.fill(0.0);
-  P_aug.topLeftCorner(n_x_, n_x_) = P_;
-  P_aug.bottomRightCorner(2, 2)   = Q_;
+  // 1b - P_aug_ - process 
+  P_aug_.fill(0.0);
+  P_aug_.topLeftCorner(n_x_, n_x_) = P_;
+  P_aug_.bottomRightCorner(2, 2)   = Q_;
 
-  // 1c - sqrt of P_aug
-  MatrixXd A  = P_aug.llt().matrixL();
+  // 1c - sqrt of P_aug_
+  MatrixXd A  = P_aug_.llt().matrixL();
 
   // 1d - create aug sigma points
-  Xsig_aug_.col(0)  = x_aug;  // 1st sigma
+  Xsig_aug_.col(0)  = x_aug_;  // 1st sigma
 
   // 1e - rest 2 * n_aug_ sigma points
   for(int i=0; i < n_aug_; i++)
   {
-    Xsig_aug_.col(i+1)        = x_aug + sqrt(lambda_ + n_aug_) * A.col(i);
-    Xsig_aug_.col(i+1+n_aug_) = x_aug - sqrt(lambda_ + n_aug_) * A.col(i);
+    Xsig_aug_.col(i+1)        = x_aug_ + sqrt(lambda_ + n_aug_) * A.col(i);
+    Xsig_aug_.col(i+1+n_aug_) = x_aug_ - sqrt(lambda_ + n_aug_) * A.col(i);
   }
 
   // 2 - Predict Sigma Points
