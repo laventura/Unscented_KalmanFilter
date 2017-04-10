@@ -50,7 +50,7 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
 
 }
 
-float EvaluateNIS(const vector<float> &nis_values, 
+float Tools::EvaluateNIS(const std::vector<double> &nis_values, 
                   MeasurementPackage::SensorType sensorType)
 {
   const float nis_radar95   = 7.815;
@@ -60,7 +60,7 @@ float EvaluateNIS(const vector<float> &nis_values,
 
   if (sensorType == MeasurementPackage::RADAR) {
     limit95 = nis_radar95;
-  } else {
+  } else if (sensorType == MeasurementPackage::LASER) {
     limit95 = nis_lidar95;
   }
 
@@ -71,5 +71,5 @@ float EvaluateNIS(const vector<float> &nis_values,
     }
   }
 
-  return float(above95 / nis_values.size());
+  return (above95 / (float)nis_values.size());
 }

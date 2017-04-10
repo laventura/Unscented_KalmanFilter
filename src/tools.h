@@ -24,7 +24,7 @@ public:
   /**
     Determine NIS performance
   **/
-  float EvaluateNIS(const std::vector<float> &nis_values, 
+  float EvaluateNIS(const std::vector<double> &nis_values, 
                   MeasurementPackage::SensorType sensorType);
 };
 

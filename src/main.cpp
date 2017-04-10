@@ -4,10 +4,12 @@
 #include <sstream>
 #include <vector>
 #include <stdlib.h>
+#include <iomanip>
 #include "Eigen/Dense"
 #include "ukf.h"
 #include "ground_truth_package.h"
 #include "measurement_package.h"
+#include "tools.h"
 
 using namespace std;
 using Eigen::MatrixXd;
@@ -137,6 +139,10 @@ int main(int argc, char* argv[]) {
   vector<VectorXd> estimations;
   vector<VectorXd> ground_truth;
 
+  // NIS values
+  vector<double> radar_nis_list;
+  vector<double> laser_nis_list;
+
   // start filtering from the second frame (the speed is unknown in the first
   // frame)
 
@@ -195,8 +201,12 @@ int main(int argc, char* argv[]) {
     
     if (measurement_pack_list[k].sensor_type_ == MeasurementPackage::LASER) {
       out_file_ << ukf.NIS_laser_ << "\n";
+      // save NIS value
+      laser_nis_list.push_back(ukf.NIS_laser_);
     } else if (measurement_pack_list[k].sensor_type_ == MeasurementPackage::RADAR) {
       out_file_ << ukf.NIS_radar_ << "\n";
+      // save NIS
+      radar_nis_list.push_back(ukf.NIS_radar_);
     }
 
 
@@ -218,6 +228,13 @@ int main(int argc, char* argv[]) {
   // ------------- compute the accuracy (RMSE) ------------------------------
   Tools tools;
   cout << "Accuracy - RMSE:" << endl << tools.CalculateRMSE(estimations, ground_truth) << endl;
+
+  // show NIS values
+  cout << "NIS Radar: " << setprecision(4) << setw(3) 
+    << tools.EvaluateNIS(radar_nis_list, MeasurementPackage::RADAR)*100.  << "%" << endl;
+  cout << "NIS Laser: " << setprecision(4) << setw(3) 
+    << tools.EvaluateNIS(laser_nis_list, MeasurementPackage::LASER)*100.  << "%" << endl;
+      
 
   // close files
   if (out_file_.is_open()) {
