@@ -230,9 +230,9 @@ int main(int argc, char* argv[]) {
   cout << "Accuracy - RMSE:" << endl << tools.CalculateRMSE(estimations, ground_truth) << endl;
 
   // show NIS values
-  cout << "NIS Radar: " << setprecision(4) << setw(3) 
+  cout << "NIS Radar: "  
     << tools.EvaluateNIS(radar_nis_list, MeasurementPackage::RADAR)*100.  << "%" << endl;
-  cout << "NIS Laser: " << setprecision(4) << setw(3) 
+  cout << "NIS Laser: " 
     << tools.EvaluateNIS(laser_nis_list, MeasurementPackage::LASER)*100.  << "%" << endl;
       
 
