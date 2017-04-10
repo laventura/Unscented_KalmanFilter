@@ -153,14 +153,14 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
       // if init vals too low
       if(fabs(px) < 0.0001) {
         px        = 1;
-        P_(0, 0)  = 100;   // was 1000 TODO: check?
+        P_(0, 0)  = 100;   
       }
       if(fabs(py) < 0.0001) {
         py        = 1;
-        P_(1,1)   = 100;   // was 1000 TODO: check?
+        P_(1,1)   = 100;  
       }
       // init x_
-      x_    <<      px, py, vx, vy, 0.0; // , 0.0, 0.0;
+      x_    <<      px, py, 0.0, 0.0, 0.0; // , 0.0, 0.0;
     } else if (meas_package.sensor_type_ == MeasurementPackage::LASER)
     {
       px          = meas_package.raw_measurements_(0);
@@ -385,24 +385,14 @@ void UKF::UpdateRadar(MeasurementPackage measurement_pack) {
     // 1b - measurement model - rho, phi, rhodot
     double rho1   = sqrt( pow(p_x, 2) + pow(p_y, 2) );
     double phi    = 0.0; 
-    phi           = atan2(p_y, p_x);
-    // if (fabs(p_x) > 0.001) {
-    //   phi = atan2(p_y, p_x);
-    // }
+    // phi           = atan2(p_y, p_x);
+    if (fabs(p_x) > 0.001) {
+      phi = atan2(p_y, p_x);
+    }
     double rhodot = 0.0;
-    rhodot = (p_x * cosv + p_y * sinv) / rho1;
-    // if (fabs(rho1) > 0.001) {
-    //   rhodot = (p_x * cosv + p_y * sinv) / rho1;
-    // }
-
-    if (rho1 != rho1) {
-      rho1 = 0;
-    }
-    if (phi != phi) {
-      phi = 0;
-    }
-    if (rhodot != rhodot) {
-      rhodot = 0;
+    // rhodot = (p_x * cosv + p_y * sinv) / rho1;
+    if (fabs(rho1) > 0.001) {
+      rhodot = (p_x * cosv + p_y * sinv) / rho1;
     }
 
     Zsig_(0, i)   = rho1;   // rho1;               // rho
