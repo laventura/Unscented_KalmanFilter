@@ -28,7 +28,7 @@ UKF::UKF() {
   std_a_      = 0.63;   // 3;    // was 30
 
   // Process noise standard deviation yaw acceleration in rad/s^2
-  std_yawdd_  = 1.2;  // 1.5; was 30
+  std_yawdd_  = 0.6;  // 1.5; was 30
 
   // Laser measurement noise standard deviation position1 in m
   std_laspx_  = 0.15;
@@ -137,8 +137,6 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
     double px = 0;
     double py = 0;
 
-    previous_timestamp_ = 0;
-
     // 1a - fill state vector x_
     if (meas_package.sensor_type_ == MeasurementPackage::RADAR)
     {
@@ -148,20 +146,21 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
 
       px          = rho * cos(phi);
       py          = rho * sin(phi);
-      // double vx   = rhodot * cos(phi);
-      // double vy   = rhodot * sin(phi);
+
+      double vx   = rhodot * cos(phi);
+      double vy   = rhodot * sin(phi);
 
       // if init vals too low
       if(fabs(px) < 0.0001) {
         px        = 1;
-        P_(0, 0)  = 1000;   // TODO: check?
+        P_(0, 0)  = 100;   // was 1000 TODO: check?
       }
       if(fabs(py) < 0.0001) {
         py        = 1;
-        P_(1,1)   = 1000;   // TODO: check?
+        P_(1,1)   = 100;   // was 1000 TODO: check?
       }
       // init x_
-      x_    <<      px, py, 0.0, 0.0, 0.0;
+      x_    <<      px, py, vx, vy, 0.0; // , 0.0, 0.0;
     } else if (meas_package.sensor_type_ == MeasurementPackage::LASER)
     {
       px          = meas_package.raw_measurements_(0);
@@ -384,9 +383,17 @@ void UKF::UpdateRadar(MeasurementPackage measurement_pack) {
     double sinv   = sin(yaw) * v;
 
     // 1b - measurement model - rho, phi, rhodot
-    double rho1   = sqrt(p_x * p_x  + p_y * p_y);
-    double phi    = atan2(p_y, p_x);
-    double rhodot = (p_x * cosv + p_y * sinv) / rho1;
+    double rho1   = sqrt( pow(p_x, 2) + pow(p_y, 2) );
+    double phi    = 0.0; 
+    phi           = atan2(p_y, p_x);
+    // if (fabs(p_x) > 0.001) {
+    //   phi = atan2(p_y, p_x);
+    // }
+    double rhodot = 0.0;
+    rhodot = (p_x * cosv + p_y * sinv) / rho1;
+    // if (fabs(rho1) > 0.001) {
+    //   rhodot = (p_x * cosv + p_y * sinv) / rho1;
+    // }
 
     if (rho1 != rho1) {
       rho1 = 0;
@@ -397,6 +404,7 @@ void UKF::UpdateRadar(MeasurementPackage measurement_pack) {
     if (rhodot != rhodot) {
       rhodot = 0;
     }
+
     Zsig_(0, i)   = rho1;   // rho1;               // rho
     Zsig_(1, i)   = phi;    // atan2(p_y, p_x);    // phi
     Zsig_(2, i)   = rhodot; // (p_x * cosv + p_y * sinv) / rho1; // rhodot
