@@ -35,8 +35,6 @@ public:
   ///* augmented sigma points matrix  -- AA
   MatrixXd Xsig_aug_;
 
-  ///* sigma points in measurement space - AA
-  MatrixXd Zsig_;
 
   ///* time when the state is true, in us
   long long time_us_;
@@ -89,9 +87,11 @@ public:
   //set measurement dimension, radar can measure r, phi, and r_dot  // AA
   int n_z_radar_;   // 3
 
+  // measurement dim for Laser: px, py
+  int n_z_laser_;
+
   ///* Process noise matrices   // AA
   MatrixXd  Q_;
-  MatrixXd  H_laser_;
   MatrixXd  R_laser_;
   MatrixXd  R_radar_;
 
