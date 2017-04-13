@@ -25,7 +25,7 @@ UKF::UKF() {
   P_ = MatrixXd(5, 5);
 
   // Process noise standard deviation longitudinal acceleration in m/s^2
-  std_a_      = 1.2; // orig 30; tested with 0.6 - 3
+  std_a_      = 1.0; // orig 30; tested with 0.6 - 3
 
   // Process noise standard deviation yaw acceleration in rad/s^2
   std_yawdd_  = 0.49;  // orig 30; test with 1.5 - 3
@@ -43,7 +43,7 @@ UKF::UKF() {
   std_radphi_ = 0.03; // from EKF project
 
   // Radar measurement noise standard deviation radius change in m/s
-  std_radrd_  = 0.3;  // from EKF project
+  std_radrd_  = 0.34;  // from EKF project
 
   /**
   TODO:
@@ -146,8 +146,8 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
       px          = rho * cos(phi);
       py          = rho * sin(phi);
 
-      double vx   = rhodot * cos(phi);
-      double vy   = rhodot * sin(phi);
+      // double vx   = rhodot * cos(phi);
+      // double vy   = rhodot * sin(phi);
 
       // if init vals too low
       if(fabs(px) < 0.0001) {
@@ -159,7 +159,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
         P_(1,1)   = 100;  
       }
       // init x_
-      x_    <<      px, py, 0.0, 0.0, 0.0; // , 0.0, 0.0;
+      x_    <<      px, py, 0.0, 0.0, 0.0;
     } else if (meas_package.sensor_type_ == MeasurementPackage::LASER)
     {
       px          = meas_package.raw_measurements_(0);
@@ -293,10 +293,11 @@ void UKF::Prediction(double delta_t) {
   // 3a - weights_ -- calculated in ctor()
   // 3b - Predicted state mean x_
   x_.fill(0.0);
-  for (int i=0; i < n_sig_; i++) 
-  {
-    x_    = x_ + weights_(i) * Xsig_pred_.col(i);
-  }
+  // for (int i=0; i < n_sig_; i++) 
+  // {
+  //   x_    = x_ + weights_(i) * Xsig_pred_.col(i);
+  // }
+  x_      = Xsig_pred_ * weights_;    // array op; per review suggestion
 
   // 3c - Predicted P_ covariance matrix
   P_.fill(0.0);
