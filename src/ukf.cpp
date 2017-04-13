@@ -61,6 +61,7 @@ UKF::UKF() {
   n_x_    = 5;
   n_aug_  = n_x_ + 2;
   lambda_ = 3 - n_aug_;
+  n_sig_  = 2 * n_aug_ + 1;   // 15 sigma points
 
   // init state vector
   x_      = VectorXd(n_x_);       // size 5
@@ -85,7 +86,7 @@ UKF::UKF() {
   P_aug_.bottomRightCorner(2, 2)   = Q_;
 
   // init weights_
-  weights_    = VectorXd(2 * n_aug_ + 1);   // 15 sigma points
+  weights_    = VectorXd(n_sig_);   // 15 sigma points
   weights_(0) = double(lambda_ / (lambda_ + n_aug_));
   for (int i=1; i < 2*n_aug_ + 1; i++)
   {
@@ -93,8 +94,8 @@ UKF::UKF() {
   }
 
   // sigma points matrix
-  Xsig_aug_   = MatrixXd(n_aug_, 2 * n_aug_ + 1); // 7x15
-  Xsig_pred_  = MatrixXd(n_x_, 2 * n_aug_ + 1);   // 5x15
+  Xsig_aug_   = MatrixXd(n_aug_, n_sig_); // 7x15
+  Xsig_pred_  = MatrixXd(n_x_, n_sig_);   // 5x15
 
   // For Radar Updates 
   n_z_radar_  = 3;
@@ -243,7 +244,7 @@ void UKF::Prediction(double delta_t) {
   }
 
   // 2 - Predict Sigma Points
-  for (int i = 0; i < 2 * n_aug_ + 1; i++)
+  for (int i = 0; i < n_sig_; i++)
   {
     // 2a - extract vals for readability
     double p_x    = Xsig_aug_(0, i);
@@ -292,14 +293,14 @@ void UKF::Prediction(double delta_t) {
   // 3a - weights_ -- calculated in ctor()
   // 3b - Predicted state mean x_
   x_.fill(0.0);
-  for (int i=0; i < 2 * n_aug_ + 1; i++) 
+  for (int i=0; i < n_sig_; i++) 
   {
     x_    = x_ + weights_(i) * Xsig_pred_.col(i);
   }
 
   // 3c - Predicted P_ covariance matrix
   P_.fill(0.0);
-  for (int i=0; i < 2 * n_aug_ + 1; i++)  // over 2n+1 sigma points
+  for (int i=0; i < n_sig_; i++)  // over 2n+1 sigma points
   {
     // 3d - state difference
     VectorXd x_diff = Xsig_pred_.col(i) - x_;
@@ -331,9 +332,9 @@ void UKF::UpdateLidar(MeasurementPackage measurement_pack) {
   // NOTE: UPDATED METHOD
 
  // 1 - transform sigma points into measurement space
- MatrixXd   Zsig = MatrixXd(n_z_laser_, 2 * n_aug_ + 1); // 2x15
+ MatrixXd   Zsig = MatrixXd(n_z_laser_, n_sig_); // 2x15
 
-  for (int i = 0; i < 2 * n_aug_ + 1; i++)
+  for (int i = 0; i < n_sig_; i++)
   {
     Zsig(0, i)   = Xsig_pred_(0,i); // px  
     Zsig(1, i)   = Xsig_pred_(1,i); // py
@@ -342,7 +343,7 @@ void UKF::UpdateLidar(MeasurementPackage measurement_pack) {
   // 2 - calc mean predicted measurement z_pred 
   VectorXd  z_pred  = VectorXd(n_z_laser_);   // size 2
   z_pred.fill(0.0);
-  for (int i = 0; i < 2 * n_aug_ + 1; i++) {
+  for (int i = 0; i < n_sig_; i++) {
     z_pred        = z_pred + weights_(i) * Zsig.col(i);
   }
 
@@ -353,7 +354,7 @@ void UKF::UpdateLidar(MeasurementPackage measurement_pack) {
   MatrixXd  Tc    = MatrixXd(n_x_, n_z_laser_);   // dim 5x2
   Tc.fill(0.0);
 
-  for (int i = 0; i < 2 * n_aug_ + 1; i++) 
+  for (int i = 0; i < n_sig_; i++) 
   {
     // 3a - residual
     VectorXd  z_diff = Zsig.col(i) - z_pred;
@@ -402,8 +403,8 @@ void UKF::UpdateRadar(MeasurementPackage measurement_pack) {
   */
 
   // 1 - transform sigma points into measurement space
-  MatrixXd   Zsig = MatrixXd(n_z_radar_, 2 * n_aug_ + 1); // 3x15
-  for (int i = 0; i < 2 * n_aug_ + 1; i++)
+  MatrixXd   Zsig = MatrixXd(n_z_radar_, n_sig_); // 3x15
+  for (int i = 0; i < n_sig_; i++)
   {
     // 1a - extract values for readability
     double  p_x   = Xsig_pred_(0, i);
@@ -435,7 +436,7 @@ void UKF::UpdateRadar(MeasurementPackage measurement_pack) {
   // 2 - calc mean predicted measurement z_pred 
   VectorXd  z_pred  = VectorXd(n_z_radar_);   // size 3
   z_pred.fill(0.0);
-  for (int i = 0; i < 2 * n_aug_ + 1; i++) {
+  for (int i = 0; i < n_sig_; i++) {
     z_pred        = z_pred + weights_(i) * Zsig.col(i);
   }
 
@@ -446,7 +447,7 @@ void UKF::UpdateRadar(MeasurementPackage measurement_pack) {
   MatrixXd  Tc    = MatrixXd(n_x_, n_z_radar_);   // dim 5x3
   Tc.fill(0.0);
 
-  for (int i = 0; i < 2 * n_aug_ + 1; i++) 
+  for (int i = 0; i < n_sig_; i++) 
   {
     // 3a - residual
     VectorXd  z_diff = Zsig.col(i) - z_pred;
