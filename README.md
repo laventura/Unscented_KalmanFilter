@@ -7,11 +7,24 @@ Self-Driving Car Engineer Nanodegree Program
 
 ## Results
 
-* Passes tests on both datasets:
+Results of the UKF project are shown below.
+
+[//]: # (Image References)
+[image1]: ./images/results_vis.png
+[image2]: ./images/nis_vis.png
+
+![UKF prediction][image1]
+
+The UKF parameters are also shown, along with the resulting RMSE values for each dataset. The UKF parameters are chosen to optimize the RMSE within the required ranges.
 
 - on dataset1, the RMSE values of [px, py, vx, vy] values are within the required range of [0.09, 0.09, 0.65, 0.65]
 
 - on dataset2, the RMSE values of [px, py, vx, vy] values are within the required range of [0.20, 0.20, 0.55, 0.55]
+
+The chart below shows the NIS visualization.
+
+![NIS results][image2]
+
 
 ---
 
