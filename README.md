@@ -1,4 +1,4 @@
-# Unscented Kalman Filter Project Starter Code
+# Unscented Kalman Filter Project 
 Self-Driving Car Engineer Nanodegree Program
 
 - Atul Acharya
@@ -6,6 +6,15 @@ Self-Driving Car Engineer Nanodegree Program
 ---
 
 ## Results
+
+The Unscented Kalman Filter (UKF) is an extension of the regular Extended Kalman Filter (EKF). The UKF allows for non-linear models (unlike the EKF, which assumes a _constant velocity_ model). UKF allows for:
+
+- constant turn rate and velocity (CTRV)
+- constant turn rate and acceleration (CTRA)
+- constant steering angle and veloticy (CSAV)
+- constant curvature and acceleration (CCA)
+
+This project assumes the **CTRV** motion model on given datasets. To deal with non-linear models, UKF works via unscented transformations. In the **Predict phase**, it begins by generating Sigma points, augments them, and then predicts the mean state vector and process covariance matrices. In the **Update phase**, the sigma points are transformed into measurement space, and then the updates are applied based on sensor (Radar/Lidar) measurements to get the new values for state vector and process covariance matrix.
 
 Results of the UKF project are shown below.
 
