@@ -492,3 +492,19 @@ void UKF::UpdateRadar(MeasurementPackage measurement_pack) {
   NIS_radar_  = z_diff.transpose() * S.inverse() * z_diff;
 
 } // UpdateRadar()
+
+void UKF::PrintParameters() 
+{
+  cout << "----------- UKF Parameters ----------" << endl;
+  cout << "σ(a)="           << std_a_ << endl;
+  cout << "σ(yawdd)="       << std_yawdd_ << endl;
+  cout << "σ(laspx)="       << std_laspx_ << endl;
+  cout << "σ(laspy)="       << std_laspy_ << endl;
+  cout << "σ(radar_rho)="   << std_radr_  << endl;
+  cout << "σ(radar_phi)="   << std_radphi_ << endl;
+  cout << "σ(radar_rhodot)=" << std_radrd_ << endl;
+  cout << "-------------------------------------" << endl;
+
+  // σ
+}
+
