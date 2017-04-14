@@ -234,6 +234,9 @@ int main(int argc, char* argv[]) {
     << tools.EvaluateNIS(radar_nis_list, MeasurementPackage::RADAR)*100.  << "%" << endl;
   cout << "NIS Laser: " 
     << tools.EvaluateNIS(laser_nis_list, MeasurementPackage::LASER)*100.  << "%" << endl;
+
+  // print UKF params
+  ukf.PrintParameters();
       
 
   // close files
